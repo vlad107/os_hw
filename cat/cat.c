@@ -1,9 +1,9 @@
+#include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
 int main() {
 	const int BUFF_SIZE = 2048;
-	const char* ERR_WRITE = "An error occured while writing\n";
-	const int ERR_WRITE_LEN = 31;
-	const char* ERR_READ = "An error occured while reading\n";
-	const int ERR_READ_LEN = 31;
 
 	char buffer[BUFF_SIZE];
 	int _read = 0;
@@ -12,14 +12,14 @@ int main() {
 		while (cur < _read) {
 			int _write = write(1, buffer + cur, _read - cur);
 			if (_write < 0) {
-				write(2, ERR_WRITE, ERR_WRITE_LEN);
+				printf("An error occured while writing: %s", strerror(errno));
 				return 1;
 			}
 			cur += _write;
 		}
 	}
 	if (_read != 0) {
-		write(2, ERR_READ, ERR_READ_LEN);
+		write(2, "An error occured while reading: %s", strerror(errno));
 		return 1;
 	}
 	return 0;
