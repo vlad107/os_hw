@@ -5,7 +5,7 @@ WEEK_IN_SECS=$((60*60*24*7))
 
 if [ $# -ne 1 ]
 then
-	echo "Usage: `basename $0` <path>"
+	echo "Usage: `basename "$0"` <path>"
 	exit $E_WRONGARGS
 fi
 
