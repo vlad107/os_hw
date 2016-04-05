@@ -124,7 +124,10 @@ int main(int argc, char **argv) {
 				close(pipes[i].second);
 				run_cmd(cmds[i], (i ? pids[i - 1] : -1));
 				return 0;
-			}// else waitpid(pids[i], NULL, 0);
+			} else {
+				close(pipes[i].first);
+				close(pipes[i].second);
+			}
 		}
 		for (int i = 0; i < (int)cmds.size(); i++) std::cerr << pids[i] << std::endl;
 		finished = false;
@@ -134,7 +137,9 @@ int main(int argc, char **argv) {
 			if (_read > 0) {
 				int pnt = 0;
 				while (pnt < _read) {
-					pnt += write(pipes[0].second, buff+pnt, _read-pnt);
+					int _write = write(pipes[0].second, buff+pnt, _read-pnt);
+					if (_write < 0) continue;
+					pnt += _write;
 				}
 			}
 		}
