@@ -63,9 +63,11 @@ int main(int argc, char **argv) {
 		cmds.clear();
 		struct sigaction sa;
 		sigemptyset(&sa.sa_mask);
+		sigaddset(&sa.sa_mask, SIGCHLD);
+		sigaddset(&sa.sa_mask, SIGINT);
 		sa.sa_flags = SA_SIGINFO;
 		sa.sa_sigaction = handler_end;
-		if (sigaction(SIGCHLD, &sa, NULL)) {
+		if (sigaction(SIGCHLD, &sa, NULL) || (sigaction(SIGINT, &sa, NULL))) {
 			fprintf(stderr, "sigaction failed");
 			exit(1);
 		}
@@ -117,16 +119,18 @@ int main(int argc, char **argv) {
 			}
 			if (pids[i] == 0) {
 				dup2(pipes[i].first, STDIN_FILENO);
+				close(pipes[i].first);
 				if (i + 1 < (int)cmds.size()) {
 					dup2(pipes[i + 1].second, STDOUT_FILENO);
+					close(pipes[i + 1].second);
 				}
-				close(pipes[i].first);
-				close(pipes[i].second);
 				run_cmd(cmds[i], (i ? pids[i - 1] : -1));
 				return 0;
 			} else {
 				close(pipes[i].first);
-				close(pipes[i].second);
+				if (i + 1 < (int)cmds.size()) {
+					close(pipes[i + 1].second);
+				}
 			}
 		}
 		for (int i = 0; i < (int)cmds.size(); i++) std::cerr << pids[i] << std::endl;
