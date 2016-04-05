@@ -1,0 +1,2 @@
+cat /proc/cpuinfo | grep 'model name' | sed -re 's/.*: (.*)/\1/' | uniq
+
